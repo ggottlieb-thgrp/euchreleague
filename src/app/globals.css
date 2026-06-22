@@ -1,26 +1,61 @@
 @import "tailwindcss";
 
+/*
+  THG Euchre League — brand design tokens.
+  Palette per THG brand guidelines:
+    Slate  #333F48  — text, headers, dark backgrounds
+    Yellow #FFC72C  — logo, accents, highlights
+    Gray   #D9D9D6  — backgrounds, subtle elements
+  Accessibility rule baked into component variants:
+    NEVER white text on yellow/gray. Slate text on yellow/white/gray.
+    White or yellow text only on slate.
+*/
+@theme {
+  --color-thg-slate: #333f48;
+  --color-thg-slate-light: #556270;
+  --color-thg-slate-dark: #232c33;
+  --color-thg-yellow: #ffc72c;
+  --color-thg-yellow-light: #ffe187;
+  --color-thg-mist: #d9d9d6;
+  --color-thg-mist-light: #ececeb;
+  --color-thg-surface: #ffffff;
+  --color-thg-danger: #ef4444;
+  --color-thg-success: #1f9d6b;
+
+  --font-sans: var(--font-open-sans), "Segoe UI", Arial, sans-serif;
+  --font-serif: var(--font-source-serif), Georgia, serif;
+
+  --radius-card: 0.75rem;
+}
+
 :root {
-  --background: #ffffff;
-  --foreground: #171717;
-}
-
-@theme inline {
-  --color-background: var(--background);
-  --color-foreground: var(--foreground);
-  --font-sans: var(--font-geist-sans);
-  --font-mono: var(--font-geist-mono);
-}
-
-@media (prefers-color-scheme: dark) {
-  :root {
-    --background: #0a0a0a;
-    --foreground: #ededed;
-  }
+  --background: var(--color-thg-mist);
+  --foreground: var(--color-thg-slate);
 }
 
 body {
   background: var(--background);
   color: var(--foreground);
-  font-family: Arial, Helvetica, sans-serif;
+  font-family: var(--font-serif);
+}
+
+h1,
+h2,
+h3,
+h4,
+h5,
+h6 {
+  font-family: var(--font-sans);
+  font-weight: 700;
+  letter-spacing: -0.01em;
+}
+
+/* Subtle felt-table texture nod for the hero, kept very light. */
+.felt-gradient {
+  background-image: radial-gradient(
+      120% 120% at 50% 0%,
+      var(--color-thg-slate-light) 0%,
+      var(--color-thg-slate) 45%,
+      var(--color-thg-slate-dark) 100%
+    );
 }

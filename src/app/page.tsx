@@ -1,65 +1,77 @@
-import Image from "next/image";
+import Link from "next/link";
+import { redirect } from "next/navigation";
+import { auth } from "@/auth";
+import { Logo, SuitGlyph } from "@/components/brand/logo";
+import { buttonVariants } from "@/components/ui/button";
+import { cn } from "@/lib/utils";
 
-export default function Home() {
+const FEATURES = [
+  { title: "Weekly pairings", body: "Auto-generated groups of four, posted every week — opt in and see your partners." },
+  { title: "Live standings", body: "Wins and points tracked automatically. Climb the competitive leaderboard." },
+  { title: "Find a time & place", body: "Share when you're free and lock in a spot at the office with your group." },
+  { title: "Player profiles", body: "Your record, favorite partners, streaks, and season trends in one place." },
+];
+
+export default async function Home() {
+  const session = await auth();
+  if (session?.user) redirect("/dashboard");
+
   return (
-    <div className="flex flex-col flex-1 items-center justify-center bg-zinc-50 font-sans dark:bg-black">
-      <main className="flex flex-1 w-full max-w-3xl flex-col items-center justify-between py-32 px-16 bg-white dark:bg-black sm:items-start">
-        <Image
-          className="dark:invert"
-          src="/next.svg"
-          alt="Next.js logo"
-          width={100}
-          height={20}
-          priority
-        />
-        <div className="flex flex-col items-center gap-6 text-center sm:items-start sm:text-left">
-          <h1 className="max-w-xs text-3xl font-semibold leading-10 tracking-tight text-black dark:text-zinc-50">
-            To get started, edit the page.tsx file.
-          </h1>
-          <p className="max-w-md text-lg leading-8 text-zinc-600 dark:text-zinc-400">
-            Looking for a starting point or more instructions? Head over to{" "}
-            <a
-              href="https://vercel.com/templates?framework=next.js&utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-              className="font-medium text-zinc-950 dark:text-zinc-50"
+    <main className="flex flex-1 flex-col">
+      {/* Hero */}
+      <section className="felt-gradient relative overflow-hidden">
+        <div className="mx-auto flex max-w-5xl flex-col items-center gap-8 px-6 py-20 text-center sm:py-28">
+          <Logo onDark showWordmark={false} className="scale-125" />
+          <div className="space-y-4">
+            <p className="font-sans text-sm font-semibold uppercase tracking-[0.22em] text-thg-yellow">
+              The Heritage Group
+            </p>
+            <h1 className="text-4xl font-extrabold text-white sm:text-6xl">
+              THG Euchre League<span className="text-thg-yellow">.</span>
+            </h1>
+            <p className="mx-auto max-w-xl text-lg text-thg-mist">
+              Season 2 is here. Pairings, scores, standings, and scheduling — all in one place.
+            </p>
+          </div>
+          <div className="flex flex-wrap items-center justify-center gap-3">
+            <Link href="/login" className={cn(buttonVariants({ variant: "accent", size: "lg" }))}>
+              Sign in to play
+            </Link>
+            <Link
+              href="/rules"
+              className={cn(
+                buttonVariants({ variant: "outline", size: "lg" }),
+                "border-white/40 bg-transparent text-white hover:border-white hover:bg-white/10",
+              )}
             >
-              Templates
-            </a>{" "}
-            or the{" "}
-            <a
-              href="https://nextjs.org/learn?utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-              className="font-medium text-zinc-950 dark:text-zinc-50"
+              League rules
+            </Link>
+          </div>
+        </div>
+        <SuitGlyph className="pointer-events-none absolute -bottom-10 -right-6 h-48 w-48 text-white/5" />
+      </section>
+
+      {/* Feature grid */}
+      <section className="mx-auto w-full max-w-5xl px-6 py-16">
+        <div className="grid gap-5 sm:grid-cols-2">
+          {FEATURES.map((f) => (
+            <div
+              key={f.title}
+              className="rounded-card border border-thg-slate/10 border-l-4 border-l-thg-yellow bg-thg-surface p-6 shadow-sm"
             >
-              Learning
-            </a>{" "}
-            center.
-          </p>
+              <h2 className="text-lg font-bold text-thg-slate">{f.title}</h2>
+              <p className="mt-1.5 text-thg-slate-light">{f.body}</p>
+            </div>
+          ))}
         </div>
-        <div className="flex flex-col gap-4 text-base font-medium sm:flex-row">
-          <a
-            className="flex h-12 w-full items-center justify-center gap-2 rounded-full bg-foreground px-5 text-background transition-colors hover:bg-[#383838] dark:hover:bg-[#ccc] md:w-[158px]"
-            href="https://vercel.com/new?utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-            target="_blank"
-            rel="noopener noreferrer"
-          >
-            <Image
-              className="dark:invert"
-              src="/vercel.svg"
-              alt="Vercel logomark"
-              width={16}
-              height={16}
-            />
-            Deploy Now
-          </a>
-          <a
-            className="flex h-12 w-full items-center justify-center rounded-full border border-solid border-black/[.08] px-5 transition-colors hover:border-transparent hover:bg-black/[.04] dark:border-white/[.145] dark:hover:bg-[#1a1a1a] md:w-[158px]"
-            href="https://nextjs.org/docs?utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-            target="_blank"
-            rel="noopener noreferrer"
-          >
-            Documentation
-          </a>
+      </section>
+
+      <footer className="mt-auto border-t border-thg-slate/10 bg-thg-surface">
+        <div className="mx-auto flex max-w-5xl items-center justify-between px-6 py-6">
+          <Logo />
+          <p className="text-xs text-thg-slate-light">© The Heritage Group</p>
         </div>
-      </main>
-    </div>
+      </footer>
+    </main>
   );
 }
