@@ -20,6 +20,10 @@ const ADMIN_EMAILS = (process.env.ADMIN_EMAILS ?? "")
   .map((e) => e.trim().toLowerCase())
   .filter(Boolean);
 
+function isAdminEmail(email: string | null | undefined): boolean {
+  return !!email && ADMIN_EMAILS.includes(email.toLowerCase());
+}
+
 function generateOtp(): string {
   return randomInt(0, 1_000_000).toString().padStart(6, "0");
 }
@@ -67,6 +71,9 @@ export const { handlers, auth, signIn, signOut } = NextAuth({
       if (ALLOWED_DOMAIN && !email.endsWith(`@${ALLOWED_DOMAIN.toLowerCase()}`)) {
         return false; // outside the company domain
       }
+      if (user.id && isAdminEmail(email)) {
+        await db.update(users).set({ role: "admin" }).where(eq(users.id, user.id));
+      }
       return true;
     },
     async session({ session, user }) {
@@ -75,7 +82,8 @@ export const { handlers, auth, signIn, signOut } = NextAuth({
         // `user` is the DB row (database session strategy), so it carries our
         // league-specific columns.
         // eslint-disable-next-line @typescript-eslint/no-explicit-any
-        session.user.role = (user as any).role ?? "player";
+        const role = (user as any).role ?? "player";
+        session.user.role = isAdminEmail(session.user.email) ? "admin" : role;
         // eslint-disable-next-line @typescript-eslint/no-explicit-any
         session.user.league = (user as any).league ?? "competitive";
       }
@@ -88,7 +96,7 @@ export const { handlers, auth, signIn, signOut } = NextAuth({
     async createUser({ user }) {
       if (!user.id) return;
       const email = user.email?.toLowerCase();
-      if (email && ADMIN_EMAILS.includes(email)) {
+      if (isAdminEmail(email)) {
         await db.update(users).set({ role: "admin" }).where(eq(users.id, user.id));
       }
       await db.insert(profiles).values({ userId: user.id }).onConflictDoNothing();

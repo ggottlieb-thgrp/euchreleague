@@ -23,12 +23,9 @@ export async function submitGame(input: SubmitGameInput) {
   if (![1, 2, 3].includes(gameNum)) return { ok: false, error: "Invalid game." };
   if (![0, 1, 2].includes(comboIndex)) return { ok: false, error: "Invalid pairing." };
   for (const s of [scoreTeam0, scoreTeam1]) {
-    if (!Number.isInteger(s) || s < 0 || s > 30) {
-      return { ok: false, error: "Scores must be whole numbers between 0 and 30." };
+    if (!Number.isInteger(s) || s < 0 || s > 40) {
+      return { ok: false, error: "Scores must be whole numbers between 0 and 40." };
     }
-  }
-  if (scoreTeam0 === scoreTeam1) {
-    return { ok: false, error: "Games can't end in a tie — one team must win." };
   }
 
   // Authorize: participant or admin
@@ -43,6 +40,9 @@ export async function submitGame(input: SubmitGameInput) {
 
   const matchup = await db.query.matchups.findFirst({ where: eq(matchups.id, matchupId) });
   if (!matchup || matchup.isBye) return { ok: false, error: "No scores for a bye." };
+  if (matchup.league === "casual") {
+    return { ok: false, error: "The casual league does not track scores." };
+  }
 
   // Map seat -> userId
   const seatUserIds: string[] = [];
@@ -51,7 +51,7 @@ export async function submitGame(input: SubmitGameInput) {
     return { ok: false, error: "Matchup isn't fully seated." };
   }
 
-  const winnerTeam = winningTeam(scoreTeam0, scoreTeam1);
+  const winnerTeam = scoreTeam0 === scoreTeam1 ? null : winningTeam(scoreTeam0, scoreTeam1);
   const rows = buildGameScoreRows(seatUserIds, comboIndex, scoreTeam0, scoreTeam1);
 
   // Upsert the game, then replace its score rows.

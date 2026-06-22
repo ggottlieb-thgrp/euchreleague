@@ -19,6 +19,9 @@ const sourceSerif = Source_Serif_4({
 export const metadata: Metadata = {
   title: "THG Euchre League",
   description: "The Heritage Group euchre league — pairings, scores, standings, and scheduling.",
+  icons: {
+    icon: "/icon.png",
+  },
 };
 
 export default function RootLayout({

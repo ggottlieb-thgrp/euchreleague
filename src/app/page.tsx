@@ -1,15 +1,32 @@
 import Link from "next/link";
 import { redirect } from "next/navigation";
+import { ArrowRight, CalendarClock, ClipboardList, Trophy, UsersRound } from "lucide-react";
 import { auth } from "@/auth";
-import { Logo, SuitGlyph } from "@/components/brand/logo";
+import { Logo } from "@/components/brand/logo";
 import { buttonVariants } from "@/components/ui/button";
 import { cn } from "@/lib/utils";
 
 const FEATURES = [
-  { title: "Weekly pairings", body: "Auto-generated groups of four, posted every week — opt in and see your partners." },
-  { title: "Live standings", body: "Wins and points tracked automatically. Climb the competitive leaderboard." },
-  { title: "Find a time & place", body: "Share when you're free and lock in a spot at the office with your group." },
-  { title: "Player profiles", body: "Your record, favorite partners, streaks, and season trends in one place." },
+  {
+    icon: UsersRound,
+    title: "Weekly pairings",
+    body: "Auto-generated groups of four, posted every week after opt-ins close.",
+  },
+  {
+    icon: Trophy,
+    title: "Live standings",
+    body: "Wins, points, averages, streaks, and player profiles stay current.",
+  },
+  {
+    icon: CalendarClock,
+    title: "Find a time and place",
+    body: "Share availability, pick an office location, and send a calendar invite.",
+  },
+  {
+    icon: ClipboardList,
+    title: "Simple score entry",
+    body: "Record the three-game rotation and keep history clean for the season.",
+  },
 ];
 
 export default async function Home() {
@@ -17,58 +34,91 @@ export default async function Home() {
   if (session?.user) redirect("/dashboard");
 
   return (
-    <main className="flex flex-1 flex-col">
-      {/* Hero */}
+    <main className="flex flex-1 flex-col bg-thg-mist-light">
       <section className="felt-gradient relative overflow-hidden">
-        <div className="mx-auto flex max-w-5xl flex-col items-center gap-8 px-6 py-20 text-center sm:py-28">
-          <Logo onDark showWordmark={false} className="scale-125" />
-          <div className="space-y-4">
-            <p className="font-sans text-sm font-semibold uppercase tracking-[0.22em] text-thg-yellow">
-              The Heritage Group
-            </p>
-            <h1 className="text-4xl font-extrabold text-white sm:text-6xl">
-              THG Euchre League<span className="text-thg-yellow">.</span>
-            </h1>
-            <p className="mx-auto max-w-xl text-lg text-thg-mist">
-              Season 2 is here. Pairings, scores, standings, and scheduling — all in one place.
-            </p>
-          </div>
-          <div className="flex flex-wrap items-center justify-center gap-3">
-            <Link href="/login" className={cn(buttonVariants({ variant: "accent", size: "lg" }))}>
-              Sign in to play
-            </Link>
+        <div className="mx-auto flex min-h-[min(760px,92vh)] max-w-6xl flex-col px-6 py-6">
+          <header className="flex items-center justify-between">
+            <Logo onDark size="sm" />
             <Link
-              href="/rules"
+              href="/login"
               className={cn(
-                buttonVariants({ variant: "outline", size: "lg" }),
-                "border-white/40 bg-transparent text-white hover:border-white hover:bg-white/10",
+                buttonVariants({ variant: "outline", size: "sm" }),
+                "border-white/30 bg-transparent text-white hover:border-white hover:bg-white/10",
               )}
             >
-              League rules
+              Sign in
             </Link>
+          </header>
+
+          <div className="grid flex-1 items-center gap-12 py-14 lg:grid-cols-[1fr_360px] lg:py-20">
+            <div className="max-w-3xl">
+              <h1 className="font-sans text-5xl font-extrabold leading-[1.02] text-white sm:text-6xl lg:text-7xl">
+                THG Euchre League
+              </h1>
+              <p className="mt-6 max-w-2xl text-xl leading-8 text-thg-mist">
+                A company-wide league for weekly pairings, score entry, standings, scheduling, and friendly competition across The Heritage Group.
+              </p>
+              <div className="mt-8 flex flex-wrap items-center gap-3">
+                <Link href="/login" className={cn(buttonVariants({ variant: "accent", size: "lg" }))}>
+                  Sign in to play
+                  <ArrowRight className="h-4 w-4" />
+                </Link>
+                <Link
+                  href="/rules"
+                  className={cn(
+                    buttonVariants({ variant: "outline", size: "lg" }),
+                    "border-white/35 bg-transparent text-white hover:border-white hover:bg-white/10",
+                  )}
+                >
+                  League rules
+                </Link>
+              </div>
+            </div>
+
+            <div className="hidden lg:flex lg:justify-end">
+              <div className="border-l-4 border-l-thg-yellow bg-white/8 p-8 shadow-2xl ring-1 ring-white/15 backdrop-blur">
+                <Logo onDark size="lg" className="items-start" />
+                <div className="mt-10 space-y-5 font-sans text-sm font-bold uppercase tracking-[0.18em] text-thg-mist">
+                  <p>Weekly opt-in</p>
+                  <p>Commissioner review</p>
+                  <p>Score deadline Friday</p>
+                </div>
+              </div>
+            </div>
+          </div>
+
+          <div className="grid border-t border-white/15 pt-5 text-sm text-thg-mist sm:grid-cols-3">
+            <p className="font-sans font-bold text-thg-yellow">Season 2</p>
+            <p>Competitive and casual leagues</p>
+            <p className="sm:text-right">Built for in-office play</p>
           </div>
         </div>
-        <SuitGlyph className="pointer-events-none absolute -bottom-10 -right-6 h-48 w-48 text-white/5" />
       </section>
 
-      {/* Feature grid */}
-      <section className="mx-auto w-full max-w-5xl px-6 py-16">
-        <div className="grid gap-5 sm:grid-cols-2">
+      <section className="mx-auto grid w-full max-w-6xl gap-10 px-6 py-16 lg:grid-cols-[0.7fr_1.3fr]">
+        <div>
+          <h2 className="font-sans text-3xl font-extrabold text-thg-slate">Everything the league needs, in one place.</h2>
+          <p className="mt-4 text-lg leading-7 text-thg-slate-light">
+            The app keeps the weekly cycle moving without spreadsheet handoffs or long email threads.
+          </p>
+        </div>
+        <div className="grid gap-4 sm:grid-cols-2">
           {FEATURES.map((f) => (
             <div
               key={f.title}
-              className="rounded-card border border-thg-slate/10 border-l-4 border-l-thg-yellow bg-thg-surface p-6 shadow-sm"
+              className="border border-thg-slate/10 border-l-4 border-l-thg-yellow bg-thg-surface p-6 shadow-sm"
             >
+              <f.icon className="mb-4 h-5 w-5 text-thg-slate" />
               <h2 className="text-lg font-bold text-thg-slate">{f.title}</h2>
-              <p className="mt-1.5 text-thg-slate-light">{f.body}</p>
+              <p className="mt-2 leading-6 text-thg-slate-light">{f.body}</p>
             </div>
           ))}
         </div>
       </section>
 
       <footer className="mt-auto border-t border-thg-slate/10 bg-thg-surface">
-        <div className="mx-auto flex max-w-5xl items-center justify-between px-6 py-6">
-          <Logo />
+        <div className="mx-auto flex max-w-6xl items-center justify-between gap-4 px-6 py-6">
+          <Logo size="sm" />
           <p className="text-xs text-thg-slate-light">© The Heritage Group</p>
         </div>
       </footer>

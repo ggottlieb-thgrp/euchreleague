@@ -86,6 +86,9 @@ export function ScoreEntryForm({
       </div>
 
       <div className="space-y-3">
+        <p className="text-sm text-thg-slate-light">
+          Record the final score after exactly 8 hands.
+        </p>
         <div className="space-y-1">
           <Label htmlFor={`combo-${gameNum}`}>Partners</Label>
           <Select
@@ -111,7 +114,7 @@ export function ScoreEntryForm({
               id={`s0-${gameNum}`}
               type="number"
               min={0}
-              max={30}
+              max={40}
               inputMode="numeric"
               value={s0}
               onChange={(e) => setS0(e.target.value)}
@@ -124,7 +127,7 @@ export function ScoreEntryForm({
               id={`s1-${gameNum}`}
               type="number"
               min={0}
-              max={30}
+              max={40}
               inputMode="numeric"
               value={s1}
               onChange={(e) => setS1(e.target.value)}

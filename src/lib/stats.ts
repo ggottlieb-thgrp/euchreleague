@@ -8,7 +8,8 @@ export interface ScoredGame {
   gameId: number;
   weekNumber: number;
   gameNum: number;
-  winnerTeam: number | null; // null = not yet submitted
+  submittedAt: Date | null;
+  winnerTeam: number | null; // null = tied game or not yet submitted
   scores: { userId: string; team: number; points: number }[];
 }
 
@@ -16,12 +17,13 @@ export interface LeaderboardRow {
   userId: string;
   wins: number;
   losses: number;
+  ties: number;
   points: number;
   gamesPlayed: number;
   avgPoints: number;
 }
 
-const completed = (g: ScoredGame) => g.winnerTeam !== null;
+const completed = (g: ScoredGame) => g.submittedAt !== null;
 
 /** Wins desc, then points desc — matches Season 1's tiebreak. */
 export function computeLeaderboard(games: ScoredGame[]): LeaderboardRow[] {
@@ -29,7 +31,7 @@ export function computeLeaderboard(games: ScoredGame[]): LeaderboardRow[] {
   const get = (userId: string) => {
     let row = stats.get(userId);
     if (!row) {
-      row = { userId, wins: 0, losses: 0, points: 0, gamesPlayed: 0, avgPoints: 0 };
+      row = { userId, wins: 0, losses: 0, ties: 0, points: 0, gamesPlayed: 0, avgPoints: 0 };
       stats.set(userId, row);
     }
     return row;
@@ -41,7 +43,8 @@ export function computeLeaderboard(games: ScoredGame[]): LeaderboardRow[] {
       const row = get(s.userId);
       row.points += s.points;
       row.gamesPlayed += 1;
-      if (s.team === g.winnerTeam) row.wins += 1;
+      if (g.winnerTeam === null) row.ties += 1;
+      else if (s.team === g.winnerTeam) row.wins += 1;
       else row.losses += 1;
     }
   }
@@ -68,6 +71,7 @@ export interface WeekTrendPoint {
 export interface PlayerStats {
   wins: number;
   losses: number;
+  ties: number;
   points: number;
   gamesPlayed: number;
   avgPoints: number;
@@ -85,6 +89,7 @@ export function computePlayerStats(userId: string, games: ScoredGame[]): PlayerS
 
   let wins = 0,
     losses = 0,
+    ties = 0,
     points = 0;
   const partners = new Map<string, PartnerStat>();
   const trend = new Map<number, WeekTrendPoint>();
@@ -92,11 +97,13 @@ export function computePlayerStats(userId: string, games: ScoredGame[]): PlayerS
 
   for (const g of mine) {
     const me = g.scores.find((s) => s.userId === userId)!;
-    const won = me.team === g.winnerTeam;
+    const tied = g.winnerTeam === null;
+    const won = !tied && me.team === g.winnerTeam;
     points += me.points;
-    if (won) wins += 1;
+    if (tied) ties += 1;
+    else if (won) wins += 1;
     else losses += 1;
-    outcomes.push(won);
+    if (!tied) outcomes.push(won);
 
     // Partner = other player on my team
     const partner = g.scores.find((s) => s.team === me.team && s.userId !== userId);
@@ -129,10 +136,11 @@ export function computePlayerStats(userId: string, games: ScoredGame[]): PlayerS
     } else break;
   }
 
-  const gamesPlayed = wins + losses;
+  const gamesPlayed = wins + losses + ties;
   return {
     wins,
     losses,
+    ties,
     points,
     gamesPlayed,
     avgPoints: gamesPlayed ? Math.round((points / gamesPlayed) * 10) / 10 : 0,

@@ -20,10 +20,20 @@ export default async function ScoresPage() {
     <div className="max-w-2xl">
       <PageHeader
         title="Enter Scores"
-        description={currentWeek ? `Week ${currentWeek.weekNumber} · 3 games to 10` : "Submit your game results"}
+        description={
+          league === "competitive" && currentWeek
+            ? `Week ${currentWeek.weekNumber} · 3 games · 8 hands each`
+            : "Submit your game results"
+        }
       />
 
-      {!myMatchup ? (
+      {league === "casual" ? (
+        <EmptyState
+          icon={<ClipboardList className="mx-auto h-8 w-8" />}
+          title="Casual league does not track scores"
+          description="Schedule and play when it works for your group. No scores or standings are recorded."
+        />
+      ) : !myMatchup ? (
         <EmptyState
           icon={<ClipboardList className="mx-auto h-8 w-8" />}
           title="Nothing to score right now"
@@ -48,7 +58,7 @@ export default async function ScoresPage() {
                     comboIndex: existing.comboIndex,
                     scoreTeam0: existing.scores.find((s) => s.team === 0)?.points ?? null,
                     scoreTeam1: existing.scores.find((s) => s.team === 1)?.points ?? null,
-                    submitted: existing.winnerTeam !== null,
+                    submitted: existing.submittedAt !== null,
                   }
                 : { comboIndex: null, scoreTeam0: null, scoreTeam1: null, submitted: false };
               return (

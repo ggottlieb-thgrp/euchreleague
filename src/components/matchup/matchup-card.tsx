@@ -21,6 +21,7 @@ export function MatchupCard({
   footer?: React.ReactNode;
 }) {
   const seats = matchup.players; // sorted by seat
+  const tracksScores = matchup.league === "competitive";
   const nameForSeat = (seat: number) =>
     seats.find((p) => p.seat === seat)?.name ?? `Seat ${SEAT_LETTERS[seat]}`;
 
@@ -78,44 +79,49 @@ export function MatchupCard({
           ))}
         </div>
 
-        {/* Game results */}
-        <div className="divide-y divide-thg-slate/10 rounded-lg border border-thg-slate/10">
-          {matchup.games.map((g) => {
-            const combo = g.comboIndex ?? g.gameNum - 1;
-            const [t0Seats, t1Seats] = COMBOS[combo as 0 | 1 | 2];
-            const pointsForTeam = (team: number) =>
-              g.scores.find((s) => s.team === team)?.points;
-            const s0 = pointsForTeam(0);
-            const s1 = pointsForTeam(1);
-            const played = g.winnerTeam !== null;
-            return (
-              <div
-                key={g.gameNum}
-                className="grid grid-cols-[1fr_auto_1fr] items-center gap-2 px-3 py-2 text-sm"
-              >
-                <TeamLabel
-                  names={[nameForSeat(t0Seats[0]), nameForSeat(t0Seats[1])]}
-                  won={played && g.winnerTeam === 0}
-                  align="right"
-                />
-                <div className="text-center font-mono text-thg-slate-light">
-                  {played ? (
-                    <span className="font-bold text-thg-slate">
-                      {s0 ?? "–"}–{s1 ?? "–"}
-                    </span>
-                  ) : (
-                    <span className="text-xs uppercase tracking-wide">G{g.gameNum}</span>
-                  )}
+        {tracksScores ? (
+          <div className="divide-y divide-thg-slate/10 rounded-lg border border-thg-slate/10">
+            {matchup.games.map((g) => {
+              const combo = g.comboIndex ?? g.gameNum - 1;
+              const [t0Seats, t1Seats] = COMBOS[combo as 0 | 1 | 2];
+              const pointsForTeam = (team: number) =>
+                g.scores.find((s) => s.team === team)?.points;
+              const s0 = pointsForTeam(0);
+              const s1 = pointsForTeam(1);
+              const played = g.submittedAt !== null;
+              return (
+                <div
+                  key={g.gameNum}
+                  className="grid grid-cols-[1fr_auto_1fr] items-center gap-2 px-3 py-2 text-sm"
+                >
+                  <TeamLabel
+                    names={[nameForSeat(t0Seats[0]), nameForSeat(t0Seats[1])]}
+                    won={played && g.winnerTeam === 0}
+                    align="right"
+                  />
+                  <div className="text-center font-mono text-thg-slate-light">
+                    {played ? (
+                      <span className="font-bold text-thg-slate">
+                        {s0 ?? "–"}–{s1 ?? "–"}
+                      </span>
+                    ) : (
+                      <span className="text-xs uppercase tracking-wide">G{g.gameNum}</span>
+                    )}
+                  </div>
+                  <TeamLabel
+                    names={[nameForSeat(t1Seats[0]), nameForSeat(t1Seats[1])]}
+                    won={played && g.winnerTeam === 1}
+                    align="left"
+                  />
                 </div>
-                <TeamLabel
-                  names={[nameForSeat(t1Seats[0]), nameForSeat(t1Seats[1])]}
-                  won={played && g.winnerTeam === 1}
-                  align="left"
-                />
-              </div>
-            );
-          })}
-        </div>
+              );
+            })}
+          </div>
+        ) : (
+          <p className="rounded-lg border border-thg-slate/10 bg-thg-mist-light/50 px-3 py-2 text-sm text-thg-slate-light">
+            Casual matchups do not track scores or standings.
+          </p>
+        )}
         {footer}
       </CardContent>
     </Card>

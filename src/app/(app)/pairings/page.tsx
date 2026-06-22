@@ -16,6 +16,7 @@ export const dynamic = "force-dynamic";
 export default async function PairingsPage() {
   const user = await requireUser();
   const league = user.league as League;
+  const tracksScores = league === "competitive";
 
   const [weeks, optInWeek] = await Promise.all([
     getWeeksDetailed(league),
@@ -76,12 +77,14 @@ export default async function PairingsPage() {
                         >
                           <CalendarClock className="h-4 w-4" /> Find a time
                         </Link>
-                        <Link
-                          href="/scores"
-                          className={cn(buttonVariants({ variant: "primary", size: "sm" }))}
-                        >
-                          Enter scores
-                        </Link>
+                        {tracksScores && (
+                          <Link
+                            href="/scores"
+                            className={cn(buttonVariants({ variant: "primary", size: "sm" }))}
+                          >
+                            Enter scores
+                          </Link>
+                        )}
                       </div>
                     ) : null
                   }

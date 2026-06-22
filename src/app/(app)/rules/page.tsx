@@ -1,5 +1,4 @@
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
-import { Badge } from "@/components/ui/badge";
 import { PageHeader } from "@/components/ui/page-header";
 
 export const metadata = { title: "Rules · THG Euchre League" };
@@ -12,88 +11,81 @@ export default function RulesPage() {
       <div className="space-y-5">
         <Card>
           <CardHeader>
-            <CardTitle>League structure</CardTitle>
+            <CardTitle>League Structure</CardTitle>
           </CardHeader>
           <CardContent className="space-y-3 text-thg-slate">
-            <div className="flex flex-wrap gap-2">
-              <Badge variant="yellow">Competitive</Badge>
-              <Badge variant="soft">Casual</Badge>
-            </div>
+            <p className="text-thg-slate-light">We run two concurrent leagues:</p>
             <ul className="list-disc space-y-1.5 pl-5 text-thg-slate-light">
               <li>
-                <span className="font-semibold text-thg-slate">Competitive</span> — scored and
-                ranked. Win/loss and points feed the leaderboard each week.
+                <span className="font-semibold text-thg-slate">Competitive:</span>
+                <ul className="mt-1 list-disc space-y-1.5 pl-5">
+                  <li>
+                    4-week season, 4-player groups, 3 games/week, 8 hands per
+                    game, rotating partners each game.
+                  </li>
+                  <li>
+                    Groups determined Monday morning. Games must be played and
+                    submitted by Friday that week.
+                  </li>
+                  <li>Ability to opt in or out for the next week before groups are made.</li>
+                  <li>Standings ordered by wins with points as a tiebreaker.</li>
+                </ul>
               </li>
               <li>
-                <span className="font-semibold text-thg-slate">Casual</span> — same format, just for
-                fun. Play your games without the pressure of standings.
+                <span className="font-semibold text-thg-slate">Casual:</span>
+                <ul className="mt-1 list-disc space-y-1.5 pl-5">
+                  <li>4-week season, 4-player groups, optional rotation and scoring.</li>
+                  <li>Groups determined Monday morning. Play when best fits for everyone.</li>
+                  <li>Ability to opt in or out for the next week before groups are made.</li>
+                  <li>No score tracking or leaderboards.</li>
+                </ul>
               </li>
-              <li>Players are grouped into foursomes each week. Leftover players sit out (a “bye”).</li>
-              <li>Opt in for the week before pairings are generated to be included.</li>
             </ul>
           </CardContent>
         </Card>
 
         <Card>
           <CardHeader>
-            <CardTitle>Weekly cadence</CardTitle>
-          </CardHeader>
-          <CardContent>
-            <ul className="list-disc space-y-1.5 pl-5 text-thg-slate-light">
-              <li>Pairings are posted at the start of each week (Monday).</li>
-              <li>Each foursome plays <span className="font-semibold text-thg-slate">3 games to 10</span>.</li>
-              <li>
-                Use the <span className="font-semibold text-thg-slate">Schedule</span> tab to find a
-                time and a spot at the office that works for your group.
-              </li>
-              <li>Submit your scores by <span className="font-semibold text-thg-slate">Friday</span>.</li>
-            </ul>
-          </CardContent>
-        </Card>
-
-        <Card>
-          <CardHeader>
-            <CardTitle>How a matchup works</CardTitle>
-          </CardHeader>
-          <CardContent>
-            <p className="text-thg-slate-light">
-              The four players rotate partners so everyone partners with everyone exactly once over
-              the three games:
-            </p>
-            <ul className="mt-2 list-disc space-y-1.5 pl-5 text-thg-slate-light">
-              <li>Game 1 — A &amp; B vs C &amp; D</li>
-              <li>Game 2 — A &amp; C vs B &amp; D</li>
-              <li>Game 3 — A &amp; D vs B &amp; C</li>
-            </ul>
-          </CardContent>
-        </Card>
-
-        <Card>
-          <CardHeader>
-            <CardTitle>Euchre scoring</CardTitle>
+            <CardTitle>Basic Euchre Rules</CardTitle>
           </CardHeader>
           <CardContent>
             <ul className="list-disc space-y-1.5 pl-5 text-thg-slate-light">
-              <li>Make your bid (3–4 tricks): <span className="font-semibold text-thg-slate">1 point</span>.</li>
-              <li>All 5 tricks (march): <span className="font-semibold text-thg-slate">2 points</span>.</li>
-              <li>Going alone and taking all 5 (loner): <span className="font-semibold text-thg-slate">4 points</span>.</li>
-              <li>Getting euchred (set): the defenders score <span className="font-semibold text-thg-slate">2 points</span>.</li>
-              <li>Reneging (failing to follow suit when able) is penalized — play it straight.</li>
-              <li>8 deals per game (two rotations of four dealers); first to 10 wins.</li>
-              <li>If tied after 8 deals, play one extra hand to decide it.</li>
+              <li>Deal starts with the holder of the first Black Jack and moves clockwise.</li>
+              <li>After shuffle, offer cut to the player to your right, then begin dealing.</li>
+              <li>
+                Deal must happen clockwise in 2 rounds. Typically in a 2-3 or 3-2
+                pattern so that every player gets 5 cards.
+              </li>
+              <li>No “Steal the Deal” rule. Deal must follow proper order.</li>
+              <li>Misdeal voids the hand, and the deal passes to the next player.</li>
+              <li>“Stick the Dealer” if no one orders up.</li>
+              <li>No “Farmer’s Hand” rule.</li>
+              <li>No “Partner&apos;s Best” rule when going alone.</li>
+              <li>No “Canadian Loner” rule when ordering trump to your partner.</li>
+              <li>
+                Each game consists of two rotations around the table. Every person
+                will deal twice for eight total deals.
+              </li>
+              <li>
+                New rule for quicker play: whatever the score is after these 8
+                hands, record that as the final score for the game. Scores can be
+                below or above 10 points.
+              </li>
+              <li>Apply this format to all 3 matchups each week and submit your scores as usual.</li>
+              <li>
+                Scoring:
+                <ul className="mt-1 list-disc space-y-1.5 pl-5">
+                  <li>1 point for calling trump and winning majority of tricks.</li>
+                  <li>2 points for calling trump and winning all 5 tricks.</li>
+                  <li>2 points awarded to defenders on a Euchre.</li>
+                  <li>2 points for opposing team reneging, meaning failing to follow suit when able to.</li>
+                  <li>4 points for going alone and winning all 5 tricks.</li>
+                </ul>
+              </li>
+              <li>Trump order: Jack of trump, Jack of same color, Ace, King, Queen, 10, 9.</li>
+              <li>Follow suit if you can; otherwise you may trump or discard.</li>
+              <li>The highest card of led suit wins, unless trumped.</li>
             </ul>
-          </CardContent>
-        </Card>
-
-        <Card>
-          <CardHeader>
-            <CardTitle>Standings &amp; tiebreaks</CardTitle>
-          </CardHeader>
-          <CardContent>
-            <p className="text-thg-slate-light">
-              The leaderboard ranks competitive players by <span className="font-semibold text-thg-slate">total wins</span>,
-              breaking ties by <span className="font-semibold text-thg-slate">total points</span>.
-            </p>
           </CardContent>
         </Card>
       </div>

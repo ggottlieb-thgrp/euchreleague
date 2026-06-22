@@ -9,13 +9,8 @@ import { cn } from "@/lib/utils";
 
 export const dynamic = "force-dynamic";
 
-export default async function LeaderboardPage({
-  searchParams,
-}: {
-  searchParams: Promise<{ league?: string }>;
-}) {
-  const { league: leagueParam } = await searchParams;
-  const league: League = leagueParam === "casual" ? "casual" : "competitive";
+export default async function LeaderboardPage() {
+  const league: League = "competitive";
 
   const games = await getScoredGames(league);
   const rows = computeLeaderboard(games);
@@ -25,8 +20,7 @@ export default async function LeaderboardPage({
     <div>
       <PageHeader
         title="Leaderboard"
-        description="Ranked by wins, then total points."
-        action={<LeagueToggle current={league} />}
+        description="Competitive standings ranked by wins, then total points."
       />
 
       {rows.length === 0 ? (
@@ -74,31 +68,6 @@ export default async function LeaderboardPage({
           </Table>
         </Card>
       )}
-    </div>
-  );
-}
-
-function LeagueToggle({ current }: { current: League }) {
-  const opts: { key: League; label: string }[] = [
-    { key: "competitive", label: "Competitive" },
-    { key: "casual", label: "Casual" },
-  ];
-  return (
-    <div className="inline-flex rounded-lg border border-thg-slate/20 bg-thg-surface p-0.5">
-      {opts.map((o) => (
-        <Link
-          key={o.key}
-          href={`/leaderboard?league=${o.key}`}
-          className={cn(
-            "rounded-md px-3 py-1.5 text-sm font-sans font-semibold",
-            current === o.key
-              ? "bg-thg-slate text-white"
-              : "text-thg-slate hover:bg-thg-mist-light",
-          )}
-        >
-          {o.label}
-        </Link>
-      ))}
     </div>
   );
 }

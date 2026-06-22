@@ -22,10 +22,11 @@ export const dynamic = "force-dynamic";
 export default async function DashboardPage() {
   const user = await requireUser();
   const league = user.league as League;
+  const tracksScores = league === "competitive";
 
   const [weeks, scored, latest] = await Promise.all([
     getWeeksDetailed(league),
-    getScoredGames(league),
+    tracksScores ? getScoredGames(league) : Promise.resolve([]),
     db.query.announcements.findFirst({ orderBy: [desc(announcements.createdAt)] }),
   ]);
 
@@ -65,9 +66,11 @@ export default async function DashboardPage() {
                 footer={
                   !myMatchup.isBye && (
                     <div className="flex flex-wrap gap-2 pt-1">
-                      <Link href="/scores" className={cn(buttonVariants({ variant: "primary", size: "sm" }))}>
-                        Enter scores
-                      </Link>
+                      {tracksScores && (
+                        <Link href="/scores" className={cn(buttonVariants({ variant: "primary", size: "sm" }))}>
+                          Enter scores
+                        </Link>
+                      )}
                       <Link
                         href={`/matchups/${myMatchup.id}/schedule`}
                         className={cn(buttonVariants({ variant: "outline", size: "sm" }))}
@@ -111,14 +114,18 @@ export default async function DashboardPage() {
                   </span>
                 </div>
               ) : (
-                <p className="text-sm text-thg-slate-light">No games played yet.</p>
+                <p className="text-sm text-thg-slate-light">
+                  {tracksScores ? "No games played yet." : "Casual league does not track standings."}
+                </p>
               )}
-              <Link
-                href="/leaderboard"
-                className="mt-2 inline-block text-sm font-semibold text-thg-slate underline"
-              >
-                View leaderboard
-              </Link>
+              {tracksScores && (
+                <Link
+                  href="/leaderboard"
+                  className="mt-2 inline-block text-sm font-semibold text-thg-slate underline"
+                >
+                  View leaderboard
+                </Link>
+              )}
             </CardContent>
           </Card>
 
@@ -152,7 +159,11 @@ export default async function DashboardPage() {
                 <Badge variant="yellow" className="mb-1">
                   {league === "competitive" ? "Competitive" : "Casual"}
                 </Badge>
-                <p className="text-thg-mist">Scores are due Friday each week.</p>
+                <p className="text-thg-mist">
+                  {tracksScores
+                    ? "Scores are due Friday each week."
+                    : "No scores or leaderboards for casual games."}
+                </p>
               </div>
             </CardContent>
           </Card>

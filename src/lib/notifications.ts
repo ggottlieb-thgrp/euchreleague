@@ -126,7 +126,7 @@ export async function notifyScoresDue(weekId: number): Promise<void> {
       matchups: {
         with: {
           players: { with: { user: { columns: { id: true, name: true, email: true } } } },
-          games: { columns: { winnerTeam: true } },
+          games: { columns: { submittedAt: true } },
         },
       },
     },
@@ -135,7 +135,7 @@ export async function notifyScoresDue(weekId: number): Promise<void> {
 
   for (const m of week.matchups) {
     if (m.isBye) continue;
-    const incomplete = m.games.length < 3 || m.games.some((g) => g.winnerTeam === null);
+    const incomplete = m.games.length < 3 || m.games.some((g) => g.submittedAt === null);
     if (!incomplete) continue;
     for (const p of m.players) {
       if (!(await wants(p.userId, "scoreReminders"))) continue;

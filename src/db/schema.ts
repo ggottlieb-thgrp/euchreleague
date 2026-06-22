@@ -275,7 +275,7 @@ export const games = pgTable(
       .references(() => matchups.id, { onDelete: "cascade" }),
     gameNum: smallint("game_num").notNull(), // 1..3
     comboIndex: smallint("combo_index"), // 0..2 (AB/CD, AC/BD, AD/BC)
-    winnerTeam: smallint("winner_team"), // 0 or 1
+    winnerTeam: smallint("winner_team"), // 0 or 1; null for ties or unsubmitted games
     submittedAt: timestamp("submitted_at", { mode: "date" }),
     submittedBy: uuid("submitted_by").references(() => users.id, {
       onDelete: "set null",

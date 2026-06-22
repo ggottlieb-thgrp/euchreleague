@@ -62,6 +62,7 @@ export async function getScoredGames(league: League): Promise<ScoredGame[]> {
           gameId: g.id,
           weekNumber: w.weekNumber,
           gameNum: g.gameNum,
+          submittedAt: g.submittedAt,
           winnerTeam: g.winnerTeam,
           scores: g.scores.map((s) => ({
             userId: s.userId,

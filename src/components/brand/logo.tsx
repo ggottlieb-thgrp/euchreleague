@@ -1,29 +1,66 @@
+import Image from "next/image";
 import { cn } from "@/lib/utils";
 
 /**
- * Brand mark for the league. Avoids touching the official THG logo (brand rules
- * forbid altering it); instead pairs a euchre suit motif with a slate/yellow
- * tile in the THG palette. `onDark` flips text to white for slate backgrounds.
+ * Brand mark for the league. Uses the supplied THG mark at real dimensions so
+ * it stays crisp, then pairs it with the league wordmark.
  */
 export function Logo({
   className,
   onDark = false,
   showWordmark = true,
+  size = "md",
 }: {
   className?: string;
   onDark?: boolean;
   showWordmark?: boolean;
+  size?: "sm" | "md" | "lg";
 }) {
+  const sizes = {
+    sm: {
+      tile: "h-11 w-11",
+      image: 34,
+      title: "text-sm",
+      subtitle: "text-[9px]",
+    },
+    md: {
+      tile: "h-13 w-13",
+      image: 42,
+      title: "text-base",
+      subtitle: "text-[10px]",
+    },
+    lg: {
+      tile: "h-24 w-24",
+      image: 82,
+      title: "text-3xl",
+      subtitle: "text-xs",
+    },
+  }[size];
+
   return (
-    <span className={cn("inline-flex items-center gap-2.5", className)}>
-      <span className="grid h-9 w-9 place-items-center rounded-lg bg-thg-slate shadow-sm">
-        <SuitGlyph className="h-5 w-5 text-thg-yellow" />
+    <span className={cn("inline-flex items-center gap-3", className)}>
+      <span
+        className={cn(
+          "grid shrink-0 place-items-center rounded-lg bg-thg-slate shadow-sm ring-1",
+          sizes.tile,
+          onDark ? "ring-white/15" : "ring-thg-slate/10",
+        )}
+      >
+        <Image
+          src="/thg-mark.png"
+          alt="The Heritage Group"
+          width={sizes.image}
+          height={sizes.image}
+          className="h-auto w-auto"
+          priority={size === "lg"}
+        />
       </span>
       {showWordmark && (
         <span className="leading-none">
           <span
             className={cn(
-              "block font-sans text-base font-extrabold tracking-tight",
+              "block font-sans font-extrabold tracking-normal",
+              sizes.title,
               onDark ? "text-white" : "text-thg-slate",
             )}
           >
@@ -31,7 +68,8 @@ export function Logo({
           </span>
           <span
             className={cn(
-              "block font-sans text-[10px] font-semibold uppercase tracking-[0.18em]",
+              "mt-1 block font-sans font-semibold uppercase tracking-[0.18em]",
+              sizes.subtitle,
               onDark ? "text-thg-yellow" : "text-thg-slate-light",
             )}
           >

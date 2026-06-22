@@ -15,6 +15,7 @@ function game(
     gameId,
     weekNumber,
     gameNum,
+    submittedAt: new Date(0),
     winnerTeam: s0 >= s1 ? 0 : 1,
     scores: [
       { userId: t0[0], team: 0, points: s0 },
@@ -48,9 +49,33 @@ describe("computeLeaderboard", () => {
   it("ignores games that aren't submitted", () => {
     const withPending: ScoredGame[] = [
       ...GAMES,
-      { gameId: 4, weekNumber: 2, gameNum: 2, winnerTeam: null, scores: [] },
+      { gameId: 4, weekNumber: 2, gameNum: 2, submittedAt: null, winnerTeam: null, scores: [] },
     ];
     expect(computeLeaderboard(withPending)).toEqual(computeLeaderboard(GAMES));
+  });
+
+  it("counts submitted tied games for points but not wins or losses", () => {
+    const tied: ScoredGame = {
+      gameId: 4,
+      weekNumber: 2,
+      gameNum: 2,
+      submittedAt: new Date(0),
+      winnerTeam: null,
+      scores: [
+        { userId: "a", team: 0, points: 8 },
+        { userId: "b", team: 0, points: 8 },
+        { userId: "c", team: 1, points: 8 },
+        { userId: "d", team: 1, points: 8 },
+      ],
+    };
+    const lb = computeLeaderboard([tied]);
+    expect(lb.find((r) => r.userId === "a")).toMatchObject({
+      wins: 0,
+      losses: 0,
+      ties: 1,
+      points: 8,
+      gamesPlayed: 1,
+    });
   });
 });
 

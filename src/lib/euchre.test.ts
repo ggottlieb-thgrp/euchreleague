@@ -33,9 +33,6 @@ describe("winningTeam", () => {
     expect(winningTeam(10, 7)).toBe(0);
     expect(winningTeam(6, 10)).toBe(1);
   });
-  it("ties resolve to team 0", () => {
-    expect(winningTeam(8, 8)).toBe(0);
-  });
 });
 
 describe("buildGameScoreRows", () => {

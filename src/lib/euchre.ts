@@ -40,7 +40,7 @@ export function seatsForTeam(combo: ComboIndex, team: Team): readonly [Seat, Sea
   return COMBOS[combo][team];
 }
 
-/** Winning team from two team scores. Higher score wins; ties resolve to team 0. */
+/** Winning team from two team scores. Call only when scores are not tied. */
 export function winningTeam(scoreTeam0: number, scoreTeam1: number): Team {
   return scoreTeam0 >= scoreTeam1 ? 0 : 1;
 }
