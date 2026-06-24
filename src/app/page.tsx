@@ -1,6 +1,12 @@
 import Link from "next/link";
 import { redirect } from "next/navigation";
-import { ArrowRight, CalendarClock, ClipboardList, Trophy, UsersRound } from "lucide-react";
+import {
+  ArrowRight,
+  CalendarClock,
+  ClipboardList,
+  Trophy,
+  UsersRound,
+} from "lucide-react";
 import { auth } from "@/auth";
 import { Logo } from "@/components/brand/logo";
 import { buttonVariants } from "@/components/ui/button";
@@ -56,10 +62,16 @@ export default async function Home() {
                 THG Euchre League
               </h1>
               <p className="mt-6 max-w-2xl text-xl leading-8 text-thg-mist">
-                A company-wide league for weekly pairings, score entry, standings, scheduling, and friendly competition across The Heritage Group.
+                A company-wide league for meeting new people, having fun, and a
+                little friendly competition across The Heritage Group.
               </p>
               <div className="mt-8 flex flex-wrap items-center gap-3">
-                <Link href="/login" className={cn(buttonVariants({ variant: "accent", size: "lg" }))}>
+                <Link
+                  href="/login"
+                  className={cn(
+                    buttonVariants({ variant: "accent", size: "lg" }),
+                  )}
+                >
                   Sign in to play
                   <ArrowRight className="h-4 w-4" />
                 </Link>
@@ -80,8 +92,8 @@ export default async function Home() {
                 <Logo onDark size="lg" className="items-start" />
                 <div className="mt-10 space-y-5 font-sans text-sm font-bold uppercase tracking-[0.18em] text-thg-mist">
                   <p>Weekly opt-in</p>
-                  <p>Commissioner review</p>
-                  <p>Score deadline Friday</p>
+                  <p>Random pairings</p>
+                  <p>All skill levels welcome</p>
                 </div>
               </div>
             </div>
@@ -97,9 +109,12 @@ export default async function Home() {
 
       <section className="mx-auto grid w-full max-w-6xl gap-10 px-6 py-16 lg:grid-cols-[0.7fr_1.3fr]">
         <div>
-          <h2 className="font-sans text-3xl font-extrabold text-thg-slate">Everything the league needs, in one place.</h2>
+          <h2 className="font-sans text-3xl font-extrabold text-thg-slate">
+            Everything the league needs, in one place.
+          </h2>
           <p className="mt-4 text-lg leading-7 text-thg-slate-light">
-            The app keeps the weekly cycle moving without spreadsheet handoffs or long email threads.
+            The app keeps the weekly cycle moving without spreadsheet handoffs
+            or long email threads.
           </p>
         </div>
         <div className="grid gap-4 sm:grid-cols-2">
