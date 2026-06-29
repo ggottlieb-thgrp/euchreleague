@@ -28,7 +28,7 @@ export default function RulesPage() {
                     submitted by Friday that week.
                   </li>
                   <li>Ability to opt in or out for the next week before groups are made.</li>
-                  <li>Standings ordered by wins with points as a tiebreaker.</li>
+                  <li>Standings ordered by points per game, with wins as a tiebreaker. This rewards the best individual player — not the one who played the most.</li>
                 </ul>
               </li>
               <li>

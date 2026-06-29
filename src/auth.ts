@@ -13,7 +13,14 @@ import {
 } from "@/db/schema";
 import { sendOtpEmail } from "@/lib/email/otp";
 
-const ALLOWED_DOMAIN = process.env.ALLOWED_EMAIL_DOMAIN; // e.g. "thgrp.com"
+// Comma-separated list of allowed email domains. Falls back to the legacy
+// single-domain var for backward compatibility.
+const ALLOWED_DOMAINS = (
+  process.env.ALLOWED_EMAIL_DOMAINS ?? process.env.ALLOWED_EMAIL_DOMAIN ?? ""
+)
+  .split(",")
+  .map((d) => d.trim().toLowerCase())
+  .filter(Boolean);
 
 const ADMIN_EMAILS = (process.env.ADMIN_EMAILS ?? "")
   .split(",")
@@ -68,8 +75,8 @@ export const { handlers, auth, signIn, signOut } = NextAuth({
     async signIn({ user }) {
       const email = user?.email?.toLowerCase();
       if (!email) return false;
-      if (ALLOWED_DOMAIN && !email.endsWith(`@${ALLOWED_DOMAIN.toLowerCase()}`)) {
-        return false; // outside the company domain
+      if (ALLOWED_DOMAINS.length > 0 && !ALLOWED_DOMAINS.some((d) => email.endsWith(`@${d}`))) {
+        return false; // outside the allowed domains
       }
       if (user.id && isAdminEmail(email)) {
         await db.update(users).set({ role: "admin" }).where(eq(users.id, user.id));

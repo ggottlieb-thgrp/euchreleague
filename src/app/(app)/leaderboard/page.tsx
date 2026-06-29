@@ -20,7 +20,7 @@ export default async function LeaderboardPage() {
     <div>
       <PageHeader
         title="Leaderboard"
-        description="Competitive standings ranked by wins, then total points."
+        description="Competitive standings ranked by points per game, with wins as a tiebreaker."
       />
 
       {rows.length === 0 ? (

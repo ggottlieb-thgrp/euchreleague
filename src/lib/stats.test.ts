@@ -33,13 +33,12 @@ const GAMES: ScoredGame[] = [
 ];
 
 describe("computeLeaderboard", () => {
-  it("ranks by wins then points", () => {
+  it("ranks by points per game, then wins as tiebreaker", () => {
     const lb = computeLeaderboard(GAMES);
-    // a: wins g1,g3 (2 wins), loss g2. points 10+8+10=28
+    // a: wins g1,g3 (2 wins), loss g2. points 10+8+10=28, avgPoints=9.3
     const a = lb.find((r) => r.userId === "a")!;
     expect(a).toMatchObject({ wins: 2, losses: 1, points: 28, gamesPlayed: 3 });
-    // a and b both have 2 wins; b has 29 pts vs a's 28, so the points tiebreak
-    // puts b on top.
+    // b has avgPoints=9.7 (29 pts / 3 games) vs a's 9.3, so b ranks higher.
     const b = lb.find((r) => r.userId === "b")!;
     expect(b).toMatchObject({ wins: 2, points: 29 });
     expect(lb[0].userId).toBe("b");

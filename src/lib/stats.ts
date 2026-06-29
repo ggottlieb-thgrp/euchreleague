@@ -25,7 +25,7 @@ export interface LeaderboardRow {
 
 const completed = (g: ScoredGame) => g.submittedAt !== null;
 
-/** Wins desc, then points desc — matches Season 1's tiebreak. */
+/** Points per game desc, then wins desc as tiebreaker. Rewards best individual player regardless of games played. */
 export function computeLeaderboard(games: ScoredGame[]): LeaderboardRow[] {
   const stats = new Map<string, LeaderboardRow>();
   const get = (userId: string) => {
@@ -53,7 +53,7 @@ export function computeLeaderboard(games: ScoredGame[]): LeaderboardRow[] {
   for (const r of rows) {
     r.avgPoints = r.gamesPlayed ? Math.round((r.points / r.gamesPlayed) * 10) / 10 : 0;
   }
-  return rows.sort((a, b) => b.wins - a.wins || b.points - a.points);
+  return rows.sort((a, b) => b.avgPoints - a.avgPoints || b.wins - a.wins);
 }
 
 export interface PartnerStat {
