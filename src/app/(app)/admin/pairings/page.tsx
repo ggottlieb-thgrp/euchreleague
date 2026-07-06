@@ -6,7 +6,7 @@ import { PageHeader, EmptyState } from "@/components/ui/page-header";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { MatchupCard } from "@/components/matchup/matchup-card";
-import { MatchupEditor } from "@/components/admin/matchup-editor";
+import { MatchupEditor, ByeGroupEditor } from "@/components/admin/matchup-editor";
 import { WeekActions } from "@/components/admin/season-controls";
 
 export const dynamic = "force-dynamic";
@@ -64,7 +64,15 @@ export default async function AdminPairingsPage() {
                       <CardTitle>{m.isBye ? "Bye group" : `Matchup #${m.id}`}</CardTitle>
                     </CardHeader>
                     <CardContent className="space-y-3">
-                      {week.status === "preview" && !m.isBye ? (
+                      {week.status !== "preview" ? (
+                        <MatchupCard matchup={m} title={m.isBye ? "Bye" : "Matchup"} />
+                      ) : m.isBye ? (
+                        <ByeGroupEditor
+                          matchupId={m.id}
+                          seatUserIds={m.players.map((p) => p.userId)}
+                          allPlayers={players}
+                        />
+                      ) : (
                         <MatchupEditor
                           matchupId={m.id}
                           seatUserIds={[0, 1, 2, 3].map(
@@ -72,8 +80,6 @@ export default async function AdminPairingsPage() {
                           )}
                           allPlayers={players}
                         />
-                      ) : (
-                        <MatchupCard matchup={m} title={m.isBye ? "Bye" : "Matchup"} />
                       )}
                     </CardContent>
                   </Card>

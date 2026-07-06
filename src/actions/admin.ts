@@ -1,7 +1,7 @@
 "use server";
 
 import { revalidatePath } from "next/cache";
-import { and, eq, max } from "drizzle-orm";
+import { and, eq, max, ne } from "drizzle-orm";
 import { db } from "@/db";
 import {
   users,
@@ -71,10 +71,10 @@ export async function generatePairingsAction(weekId: number) {
   }
 }
 
-export async function publishWeekAction(weekId: number) {
+export async function publishWeekAction(weekId: number, opts: { notify?: boolean } = {}) {
   await requireAdmin();
   try {
-    await publishWeek(weekId);
+    await publishWeek(weekId, opts);
     revalidateLeague();
     return { ok: true };
   } catch (e) {
@@ -91,16 +91,116 @@ export async function unpublishWeekAction(weekId: number) {
 
 /* ------------------------------- Matchups ------------------------------- */
 
-/** Replace the four seated players of a matchup (seat order preserved). */
+/**
+ * Replace a matchup's roster. A real matchup always needs exactly four
+ * distinct players; a bye group can hold any number.
+ *
+ * Anyone newly added who is currently seated somewhere else this week is
+ * automatically pulled out of that spot first — as long as it's the bye
+ * group they're coming from. Anyone dropped from a real matchup (and not
+ * picked up elsewhere in this same save) is automatically moved onto that
+ * week's bye group instead of just disappearing. Pulling a player out of a
+ * *real* matchup this way is rejected — move them to bye first, then bring
+ * them into the new matchup.
+ */
 export async function setMatchupPlayers(matchupId: number, userIds: string[]) {
   await requireAdmin();
-  if (userIds.length !== 4 || new Set(userIds).size !== 4) {
+
+  const matchup = await db.query.matchups.findFirst({ where: eq(matchups.id, matchupId) });
+  if (!matchup) return { ok: false, error: "Matchup not found." };
+
+  const filtered = userIds.filter((id) => id !== "");
+  if (new Set(filtered).size !== filtered.length) {
+    return { ok: false, error: "Pick distinct players — no duplicates." };
+  }
+  if (!matchup.isBye && filtered.length !== 4) {
     return { ok: false, error: "Pick four distinct players." };
   }
+
+  const currentRows = await db
+    .select({ userId: matchupPlayers.userId })
+    .from(matchupPlayers)
+    .where(eq(matchupPlayers.matchupId, matchupId));
+  const currentIds = new Set(currentRows.map((r) => r.userId));
+
+  const added = filtered.filter((id) => !currentIds.has(id));
+  const removed = [...currentIds].filter((id) => !filtered.includes(id));
+
+  // Anyone coming in from elsewhere this week must be coming from the bye
+  // group — pull them out of it. Coming from a real matchup is rejected so
+  // we never silently leave that other matchup short a player.
+  for (const userId of added) {
+    const [elsewhere] = await db
+      .select({ matchupId: matchupPlayers.matchupId, isBye: matchups.isBye })
+      .from(matchupPlayers)
+      .innerJoin(matchups, eq(matchups.id, matchupPlayers.matchupId))
+      .where(
+        and(
+          eq(matchupPlayers.userId, userId),
+          eq(matchups.weekId, matchup.weekId),
+          ne(matchupPlayers.matchupId, matchupId),
+        ),
+      );
+    if (!elsewhere) continue;
+    if (!elsewhere.isBye) {
+      return {
+        ok: false,
+        error: "One of the selected players is already in another matchup this week — move them to bye first.",
+      };
+    }
+    await db
+      .delete(matchupPlayers)
+      .where(
+        and(eq(matchupPlayers.matchupId, elsewhere.matchupId), eq(matchupPlayers.userId, userId)),
+      );
+  }
+
   await db.delete(matchupPlayers).where(eq(matchupPlayers.matchupId, matchupId));
   await db
     .insert(matchupPlayers)
-    .values(userIds.map((userId, seat) => ({ matchupId, userId, seat })));
+    .values(filtered.map((userId, seat) => ({ matchupId, userId, seat })));
+
+  // Anyone dropped from a real matchup goes on bye instead of vanishing.
+  if (!matchup.isBye && removed.length > 0) {
+    let byeMatchup = await db.query.matchups.findFirst({
+      where: and(
+        eq(matchups.weekId, matchup.weekId),
+        eq(matchups.league, matchup.league),
+        eq(matchups.isBye, true),
+      ),
+    });
+    if (!byeMatchup) {
+      [byeMatchup] = await db
+        .insert(matchups)
+        .values({ weekId: matchup.weekId, league: matchup.league, isBye: true })
+        .returning();
+    }
+    const byeRows = await db
+      .select({ userId: matchupPlayers.userId })
+      .from(matchupPlayers)
+      .where(eq(matchupPlayers.matchupId, byeMatchup.id));
+    const byeIds = [...new Set([...byeRows.map((r) => r.userId), ...removed])];
+    await db.delete(matchupPlayers).where(eq(matchupPlayers.matchupId, byeMatchup.id));
+    await db
+      .insert(matchupPlayers)
+      .values(byeIds.map((userId, seat) => ({ matchupId: byeMatchup!.id, userId, seat })));
+  }
+
+  // Clean up any bye group that a save just emptied out.
+  const byeMatchups = await db
+    .select({ id: matchups.id })
+    .from(matchups)
+    .where(and(eq(matchups.weekId, matchup.weekId), eq(matchups.isBye, true)));
+  for (const bm of byeMatchups) {
+    const rows = await db
+      .select({ userId: matchupPlayers.userId })
+      .from(matchupPlayers)
+      .where(eq(matchupPlayers.matchupId, bm.id));
+    if (rows.length === 0) {
+      await db.delete(matchups).where(eq(matchups.id, bm.id));
+    }
+  }
+
   revalidateLeague();
   return { ok: true };
 }

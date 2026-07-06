@@ -26,23 +26,27 @@ async function ensureNextPendingWeek(seasonId: number) {
 }
 
 /**
- * Publish a week: flip status, post an announcement, and fan out notifications.
- * Idempotent — calling it on an already-published week is a no-op. Shared by
- * the admin "Publish" button and the auto-publish cron.
+ * Publish a week: flip status, and (unless `notify` is false) post an
+ * announcement and fan out player emails. `notify: false` lets an admin
+ * republish after a matchup correction (e.g. a bye swap) without spamming
+ * everyone's inbox. Idempotent — calling it on an already-published week is
+ * a no-op. Shared by the admin "Publish" button and the auto-publish cron.
  */
-export async function publishWeek(weekId: number, opts: { postAnnouncement?: boolean } = {}) {
+export async function publishWeek(weekId: number, opts: { notify?: boolean } = {}) {
   const week = await db.query.weeks.findFirst({ where: eq(weeks.id, weekId) });
   if (!week) throw new Error("Week not found");
   if (week.status === "published" || week.status === "completed") {
     return { ok: true, alreadyPublished: true };
   }
 
+  const notify = opts.notify !== false;
+
   await db
     .update(weeks)
     .set({ status: "published", publishedAt: new Date() })
     .where(eq(weeks.id, weekId));
 
-  if (opts.postAnnouncement !== false) {
+  if (notify) {
     await db.insert(announcements).values({
       title: `Week ${week.weekNumber} pairings are up!`,
       body: `This week's matchups have been posted. Check the Pairings tab to see your group, then head to Schedule to lock in a time and place to play. Scores are due Friday — good luck!`,
@@ -53,10 +57,12 @@ export async function publishWeek(weekId: number, opts: { postAnnouncement?: boo
   await ensureNextPendingWeek(week.seasonId);
 
   // Email fan-out (best-effort; never blocks publishing).
-  try {
-    await notifyPairingsPublished(weekId);
-  } catch (err) {
-    console.error("notifyPairingsPublished failed:", err);
+  if (notify) {
+    try {
+      await notifyPairingsPublished(weekId);
+    } catch (err) {
+      console.error("notifyPairingsPublished failed:", err);
+    }
   }
 
   return { ok: true, alreadyPublished: false };

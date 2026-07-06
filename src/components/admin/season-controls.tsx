@@ -101,21 +101,40 @@ export function WeekActions({
         </Button>
       )}
       {status === "preview" && (
-        <Button
-          size="sm"
-          variant="accent"
-          disabled={pending}
-          onClick={() => run(() => publishWeekAction(weekId))}
-        >
-          Publish &amp; notify
-        </Button>
+        <>
+          <Button
+            size="sm"
+            variant="accent"
+            disabled={pending}
+            onClick={() => run(() => publishWeekAction(weekId))}
+          >
+            Publish &amp; notify
+          </Button>
+          <Button
+            size="sm"
+            variant="outline"
+            disabled={pending}
+            title="Publishes the week but skips the announcement and player emails — use this after a matchup correction."
+            onClick={() => run(() => publishWeekAction(weekId, { notify: false }))}
+          >
+            Publish (no email)
+          </Button>
+        </>
       )}
       {status === "published" && (
         <Button
           size="sm"
           variant="outline"
           disabled={pending}
-          onClick={() => run(() => unpublishWeekAction(weekId))}
+          onClick={() => {
+            if (
+              confirm(
+                "Unpublish this week so you can edit matchups? Players who already saw the pairings won't be notified that it changed.",
+              )
+            ) {
+              run(() => unpublishWeekAction(weekId));
+            }
+          }}
         >
           Unpublish
         </Button>
