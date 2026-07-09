@@ -11,6 +11,7 @@ import {
   matchupPlayers,
   locations,
   announcements,
+  optIns,
 } from "@/db/schema";
 import { requireAdmin } from "@/lib/auth-helpers";
 import { generateWeekPairings } from "@/lib/league/generate";
@@ -233,6 +234,22 @@ export async function removeUser(userId: string) {
   if (admin.id === userId) return { ok: false, error: "You can't remove yourself." };
   await db.delete(users).where(eq(users.id, userId));
   revalidatePath("/admin/users");
+  return { ok: true };
+}
+
+/** Set a player's opt-in status for the currently open week on their behalf. */
+export async function setUserOptInAdmin(userId: string, weekId: number, optedIn: boolean) {
+  await requireAdmin();
+  await db
+    .insert(optIns)
+    .values({ userId, weekId, optedIn, updatedAt: new Date() })
+    .onConflictDoUpdate({
+      target: [optIns.userId, optIns.weekId],
+      set: { optedIn, updatedAt: new Date() },
+    });
+  revalidatePath("/admin/users");
+  revalidatePath("/pairings");
+  revalidatePath("/dashboard");
   return { ok: true };
 }
 

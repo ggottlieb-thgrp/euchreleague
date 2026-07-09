@@ -37,3 +37,17 @@ export async function getOptedInUserIds(weekId: number, candidateIds: string[]):
   // Default opted-in unless explicitly opted out.
   return candidateIds.filter((id) => explicit.get(id) !== false);
 }
+
+/** userId -> opted-in status for a week, defaulting to opted-in when unset. */
+export async function getOptInMap(
+  weekId: number,
+  candidateIds: string[],
+): Promise<Map<string, boolean>> {
+  if (candidateIds.length === 0) return new Map();
+  const rows = await db
+    .select({ userId: optIns.userId, optedIn: optIns.optedIn })
+    .from(optIns)
+    .where(and(eq(optIns.weekId, weekId), inArray(optIns.userId, candidateIds)));
+  const explicit = new Map(rows.map((r) => [r.userId, r.optedIn]));
+  return new Map(candidateIds.map((id) => [id, explicit.get(id) ?? true]));
+}

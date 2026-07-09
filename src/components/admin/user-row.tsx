@@ -1,25 +1,61 @@
 "use client";
 
-import { useTransition } from "react";
+import { useState, useTransition } from "react";
 import { Trash2 } from "lucide-react";
-import { setUserRole, setUserLeague, removeUser } from "@/actions/admin";
+import { setUserRole, setUserLeague, removeUser, setUserOptInAdmin } from "@/actions/admin";
 import { Select } from "@/components/ui/input";
+import { Switch } from "@/components/ui/switch";
 
 export function UserRowControls({
   userId,
   role,
   league,
   isSelf,
+  openWeekId,
+  openWeekNumber,
+  optedIn: initialOptedIn,
 }: {
   userId: string;
   role: "player" | "admin";
   league: "competitive" | "casual";
   isSelf: boolean;
+  openWeekId: number | null;
+  openWeekNumber: number | null;
+  optedIn: boolean;
 }) {
   const [pending, startTransition] = useTransition();
+  const [optedIn, setOptedIn] = useState(initialOptedIn);
+  const [optInPending, startOptInTransition] = useTransition();
+
+  function toggleOptIn(next: boolean) {
+    if (!openWeekId) return;
+    setOptedIn(next); // optimistic
+    startOptInTransition(async () => {
+      const res = await setUserOptInAdmin(userId, openWeekId, next);
+      if (!res.ok) setOptedIn(!next); // revert on failure
+    });
+  }
 
   return (
-    <div className="flex items-center gap-2">
+    <div className="flex items-center gap-3">
+      {openWeekId ? (
+        <div className="flex items-center gap-2" title={`Week ${openWeekNumber} opt-in`}>
+          <Switch
+            id={`optin-${userId}`}
+            checked={optedIn}
+            onCheckedChange={toggleOptIn}
+            disabled={optInPending}
+          />
+          <label
+            htmlFor={`optin-${userId}`}
+            className="whitespace-nowrap text-xs font-semibold text-thg-slate-light"
+          >
+            {optedIn ? "In" : "Out"} — wk {openWeekNumber}
+          </label>
+        </div>
+      ) : (
+        <span className="whitespace-nowrap text-xs text-thg-slate-light">No open week</span>
+      )}
       <Select
         defaultValue={league}
         disabled={pending}
