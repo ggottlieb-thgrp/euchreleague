@@ -6,6 +6,12 @@ import type { ScoredGame } from "@/lib/stats";
 
 export type League = "competitive" | "casual";
 
+/** Query-string key used to select a specific week to view/edit per league. */
+export const WEEK_PARAM: Record<League, "cWeek" | "sWeek"> = {
+  competitive: "cWeek",
+  casual: "sWeek",
+};
+
 /** The active season for a league (or null if none has been created yet). */
 export async function getActiveSeason(league: League) {
   return db.query.seasons.findFirst({

@@ -10,7 +10,7 @@ import {
   CreateNextWeekButton,
   WeekActions,
 } from "@/components/admin/season-controls";
-import type { League } from "@/lib/data/league";
+import { WEEK_PARAM, type League } from "@/lib/data/league";
 
 export const dynamic = "force-dynamic";
 
@@ -88,9 +88,9 @@ export default async function AdminOverviewPage() {
                           </span>
                         </div>
                         <div className="flex items-center gap-2">
-                          {(w.status === "preview" || w.status === "published") && (
+                          {w.matchups.length > 0 && (
                             <Link
-                              href="/admin/pairings"
+                              href={`/admin/pairings?${WEEK_PARAM[league]}=${w.id}`}
                               className="text-sm font-semibold text-thg-slate underline"
                             >
                               View / edit
